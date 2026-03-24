@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>heznpc — gallery</title>
+  <meta name="description" content="2차 창작 / 유머 일러스트 갤러리">
+  <meta property="og:title" content="heznpc — gallery">
+  <meta property="og:description" content="2차 창작 / 유머 일러스트 갤러리">
+  <meta property="og:type" content="website">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+
+    :root{
+      --bg:#0a0a0b;
+      --surface:rgba(255,255,255,.04);
+      --surface-hover:rgba(255,255,255,.08);
+      --border:rgba(255,255,255,.06);
+      --text:#e4e4e7;
+      --text-dim:rgba(255,255,255,.4);
+      --accent:#a78bfa;
+    }
+
+    body{
+      font-family:'Noto Sans KR',-apple-system,BlinkMacSystemFont,sans-serif;
+      background:var(--bg);color:var(--text);
+      -webkit-font-smoothing:antialiased;line-height:1.6;
+    }
+
+    a{color:inherit;text-decoration:none}
+
+    /* === Header === */
+    .header{
+      position:sticky;top:0;z-index:100;
+      padding:16px 24px;
+      background:rgba(10,10,11,.8);
+      backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+      border-bottom:1px solid var(--border);
+      display:flex;align-items:center;justify-content:space-between;
+    }
+    .header-brand{
+      font-family:'JetBrains Mono',monospace;
+      font-size:.85rem;font-weight:500;opacity:.7;
+    }
+    .header-brand span{color:var(--accent);opacity:1}
+
+    /* === Filter tags === */
+    .filters{
+      padding:20px 24px 8px;
+      display:flex;gap:8px;flex-wrap:wrap;
+      max-width:1400px;margin:0 auto;
+    }
+    .filter-tag{
+      padding:6px 14px;border-radius:9999px;
+      font-size:.75rem;font-weight:700;cursor:pointer;
+      background:var(--surface);border:1px solid var(--border);
+      color:var(--text-dim);transition:all .2s;
+    }
+    .filter-tag:hover{background:var(--surface-hover);color:var(--text)}
+    .filter-tag.active{background:rgba(167,139,250,.15);border-color:rgba(167,139,250,.3);color:var(--accent)}
+
+    /* === Masonry grid === */
+    .gallery{
+      max-width:1400px;margin:0 auto;padding:16px 24px 80px;
+      columns:4 280px;column-gap:12px;
+    }
+
+    /* === Card === */
+    .card{
+      break-inside:avoid;margin-bottom:12px;
+      border-radius:12px;overflow:hidden;
+      background:var(--surface);border:1px solid var(--border);
+      cursor:pointer;transition:transform .3s ease,box-shadow .3s ease;
+    }
+    .card:hover{
+      transform:translateY(-2px);
+      box-shadow:0 12px 32px rgba(0,0,0,.3);
+    }
+    .card img{
+      width:100%;display:block;
+      transition:opacity .4s;
+    }
+    .card-info{padding:12px 14px}
+    .card-title{font-size:.82rem;font-weight:700}
+    .card-meta{
+      font-size:.7rem;color:var(--text-dim);margin-top:4px;
+      display:flex;gap:8px;align-items:center;
+    }
+    .card-tag{
+      font-size:.6rem;padding:2px 7px;border-radius:9999px;
+      background:rgba(167,139,250,.1);color:var(--accent);
+      border:1px solid rgba(167,139,250,.15);
+    }
+
+    /* === Lightbox === */
+    .lightbox{
+      position:fixed;inset:0;z-index:200;
+      background:rgba(0,0,0,.92);
+      backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+      display:none;align-items:center;justify-content:center;
+      cursor:zoom-out;
+    }
+    .lightbox.open{display:flex}
+    .lightbox img{
+      max-width:90vw;max-height:90vh;
+      border-radius:8px;
+      box-shadow:0 24px 64px rgba(0,0,0,.5);
+    }
+    .lightbox-close{
+      position:absolute;top:20px;right:24px;
+      font-size:1.5rem;color:rgba(255,255,255,.5);
+      cursor:pointer;background:none;border:none;
+      transition:color .2s;
+    }
+    .lightbox-close:hover{color:#fff}
+    .lightbox-info{
+      position:absolute;bottom:24px;left:50%;transform:translateX(-50%);
+      text-align:center;color:rgba(255,255,255,.6);font-size:.82rem;
+    }
+
+    /* === Empty state === */
+    .empty{
+      text-align:center;padding:120px 24px;
+      color:var(--text-dim);
+    }
+    .empty-icon{font-size:3rem;margin-bottom:16px;opacity:.3}
+    .empty-text{font-size:.9rem;line-height:1.8}
+    .empty code{
+      font-family:'JetBrains Mono',monospace;
+      font-size:.8rem;padding:2px 8px;border-radius:6px;
+      background:var(--surface);border:1px solid var(--border);
+    }
+
+    /* === Responsive === */
+    @media(max-width:900px){.gallery{columns:3}}
+    @media(max-width:600px){
+      .gallery{columns:2;padding:12px 12px 60px;column-gap:8px}
+      .card{margin-bottom:8px;border-radius:8px}
+      .card-info{padding:10px 12px}
+      .header{padding:14px 16px}
+      .filters{padding:16px 12px 4px}
+    }
+
+    /* === Fade-in === */
+    .card{opacity:0;animation:fadeUp .5s ease forwards}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="header-brand">heznpc<span>/gallery</span></div>
+    <a href="https://heznpc.github.io" style="font-size:.75rem;opacity:.4;transition:opacity .2s" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='.4'">dev portfolio &rarr;</a>
+  </header>
+
+  <!-- Filters -->
+  <div class="filters" id="filters">
+    <button class="filter-tag active" data-tag="all">전체</button>
+  </div>
+
+  <!-- Gallery -->
+  <div class="gallery" id="gallery"></div>
+
+  <!-- Lightbox -->
+  <div class="lightbox" id="lightbox">
+    <button class="lightbox-close" id="lightboxClose">&times;</button>
+    <img id="lightboxImg" src="" alt="">
+    <div class="lightbox-info" id="lightboxInfo"></div>
+  </div>
+
+  <script>
+    // =============================
+    // 여기에 그림 데이터 추가
+    // =============================
+    var WORKS = [
+      // 예시 (이미지 추가 시 이 형식으로):
+      // {
+      //   src: "img/example.png",
+      //   title: "제목",
+      //   tags: ["태그1", "태그2"],
+      //   date: "2026-03"
+      // },
+    ];
+
+    // === Render ===
+    var gallery = document.getElementById('gallery');
+    var filters = document.getElementById('filters');
+    var lightbox = document.getElementById('lightbox');
+    var lightboxImg = document.getElementById('lightboxImg');
+    var lightboxInfo = document.getElementById('lightboxInfo');
+    var activeTag = 'all';
+
+    // Collect all tags
+    var allTags = [];
+    WORKS.forEach(function(w) {
+      (w.tags || []).forEach(function(t) {
+        if (allTags.indexOf(t) === -1) allTags.push(t);
+      });
+    });
+    allTags.forEach(function(tag) {
+      var btn = document.createElement('button');
+      btn.className = 'filter-tag';
+      btn.dataset.tag = tag;
+      btn.textContent = tag;
+      filters.appendChild(btn);
+    });
+
+    function renderGallery() {
+      var filtered = activeTag === 'all'
+        ? WORKS
+        : WORKS.filter(function(w) { return (w.tags || []).indexOf(activeTag) !== -1; });
+
+      if (filtered.length === 0) {
+        gallery.innerHTML =
+          '<div class="empty">' +
+          '<div class="empty-icon">\uD83C\uDFA8</div>' +
+          '<div class="empty-text">아직 작품이 없습니다<br>' +
+          '<code>WORKS</code> 배열에 이미지를 추가하세요</div>' +
+          '</div>';
+        return;
+      }
+
+      gallery.innerHTML = '';
+      filtered.forEach(function(w, i) {
+        var card = document.createElement('div');
+        card.className = 'card';
+        card.style.animationDelay = (i * 60) + 'ms';
+
+        var tagsHtml = (w.tags || []).map(function(t) {
+          return '<span class="card-tag">' + t + '</span>';
+        }).join(' ');
+
+        card.innerHTML =
+          '<img src="' + w.src + '" alt="' + (w.title || '') + '" loading="lazy">' +
+          '<div class="card-info">' +
+          '<div class="card-title">' + (w.title || '') + '</div>' +
+          '<div class="card-meta">' +
+          (w.date ? '<span>' + w.date + '</span>' : '') +
+          tagsHtml +
+          '</div></div>';
+
+        card.addEventListener('click', function() {
+          lightboxImg.src = w.src;
+          lightboxInfo.textContent = (w.title || '') + (w.date ? ' \u00B7 ' + w.date : '');
+          lightbox.classList.add('open');
+          document.body.style.overflow = 'hidden';
+        });
+
+        gallery.appendChild(card);
+      });
+    }
+
+    // Filter click
+    filters.addEventListener('click', function(e) {
+      if (!e.target.classList.contains('filter-tag')) return;
+      document.querySelectorAll('.filter-tag').forEach(function(b) { b.classList.remove('active'); });
+      e.target.classList.add('active');
+      activeTag = e.target.dataset.tag;
+      renderGallery();
+    });
+
+    // Lightbox close
+    lightbox.addEventListener('click', function(e) {
+      if (e.target === lightboxImg) return;
+      lightbox.classList.remove('open');
+      document.body.style.overflow = '';
+    });
+    document.getElementById('lightboxClose').addEventListener('click', function() {
+      lightbox.classList.remove('open');
+      document.body.style.overflow = '';
+    });
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        lightbox.classList.remove('open');
+        document.body.style.overflow = '';
+      }
+    });
+
+    renderGallery();
+  </script>
+</body>
+</html>
