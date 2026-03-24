@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" data-theme="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,166 +10,236 @@
   <meta property="og:type" content="website">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
   <style>
     *{margin:0;padding:0;box-sizing:border-box}
 
+    /* === Light (default) === */
     :root{
-      --bg:#0a0a0b;
-      --surface:rgba(255,255,255,.04);
-      --surface-hover:rgba(255,255,255,.08);
-      --border:rgba(255,255,255,.06);
-      --text:#e4e4e7;
-      --text-dim:rgba(255,255,255,.4);
-      --accent:#a78bfa;
+      --bg:#faf9f7;
+      --header-bg:rgba(250,249,247,.85);
+      --header-border:rgba(0,0,0,.05);
+      --text:#2c2c2c;
+      --text-sec:#999;
+      --filter-bg:rgba(0,0,0,.04);
+      --filter-hover:rgba(0,0,0,.08);
+      --filter-active-bg:rgba(44,44,44,.08);
+      --filter-active-text:#2c2c2c;
+      --img-radius:6px;
+      --img-shadow:0 2px 8px rgba(0,0,0,.06);
+      --img-shadow-hover:0 8px 28px rgba(0,0,0,.12);
+      --lb-bg:rgba(250,249,247,.96);
+      --lb-text:#2c2c2c;
+      --lb-text-sec:#999;
+      --lb-tag-bg:rgba(0,0,0,.05);
+      --empty-text:#bbb;
+    }
+
+    /* === Dark === */
+    [data-theme="dark"]{
+      --bg:#1a1919;
+      --header-bg:rgba(26,25,25,.85);
+      --header-border:rgba(255,255,255,.05);
+      --text:#e8e6e3;
+      --text-sec:#777;
+      --filter-bg:rgba(255,255,255,.06);
+      --filter-hover:rgba(255,255,255,.1);
+      --filter-active-bg:rgba(255,255,255,.1);
+      --filter-active-text:#e8e6e3;
+      --img-radius:6px;
+      --img-shadow:0 2px 8px rgba(0,0,0,.2);
+      --img-shadow-hover:0 8px 28px rgba(0,0,0,.4);
+      --lb-bg:rgba(26,25,25,.97);
+      --lb-text:#e8e6e3;
+      --lb-text-sec:#777;
+      --lb-tag-bg:rgba(255,255,255,.08);
+      --empty-text:#555;
     }
 
     body{
       font-family:'Noto Sans KR',-apple-system,BlinkMacSystemFont,sans-serif;
       background:var(--bg);color:var(--text);
       -webkit-font-smoothing:antialiased;line-height:1.6;
+      transition:background .35s,color .35s;
     }
-
     a{color:inherit;text-decoration:none}
+    button{font:inherit;cursor:pointer;border:0;background:0 0}
 
-    /* === Header === */
+    /* === Header — minimal === */
     .header{
       position:sticky;top:0;z-index:100;
-      padding:16px 24px;
-      background:rgba(10,10,11,.8);
-      backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
-      border-bottom:1px solid var(--border);
+      padding:0 32px;height:52px;
+      background:var(--header-bg);
+      backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+      border-bottom:1px solid var(--header-border);
       display:flex;align-items:center;justify-content:space-between;
+      transition:background .35s,border-color .35s;
     }
-    .header-brand{
-      font-family:'JetBrains Mono',monospace;
-      font-size:.85rem;font-weight:500;opacity:.7;
+    .header-brand{font-size:.95rem;font-weight:700;letter-spacing:-.02em}
+    .header-right{display:flex;align-items:center;gap:20px}
+    .header-link{font-size:.75rem;color:var(--text-sec);transition:color .2s}
+    .header-link:hover{color:var(--text)}
+    .theme-btn{
+      width:28px;height:28px;border-radius:50%;
+      display:flex;align-items:center;justify-content:center;
+      font-size:.82rem;color:var(--text-sec);transition:all .2s;
     }
-    .header-brand span{color:var(--accent);opacity:1}
+    .theme-btn:hover{color:var(--text)}
 
-    /* === Filter tags === */
-    .filters{
-      padding:20px 24px 8px;
-      display:flex;gap:8px;flex-wrap:wrap;
-      max-width:1400px;margin:0 auto;
+    /* === Filters — understated === */
+    .filter-bar{
+      max-width:960px;margin:0 auto;
+      padding:20px 32px 4px;
+      display:flex;gap:6px;flex-wrap:wrap;
     }
     .filter-tag{
-      padding:6px 14px;border-radius:9999px;
-      font-size:.75rem;font-weight:700;cursor:pointer;
-      background:var(--surface);border:1px solid var(--border);
-      color:var(--text-dim);transition:all .2s;
+      padding:5px 14px;border-radius:9999px;
+      font-size:.76rem;font-weight:500;
+      background:var(--filter-bg);color:var(--text-sec);
+      transition:all .2s;
     }
-    .filter-tag:hover{background:var(--surface-hover);color:var(--text)}
-    .filter-tag.active{background:rgba(167,139,250,.15);border-color:rgba(167,139,250,.3);color:var(--accent)}
+    .filter-tag:hover{background:var(--filter-hover);color:var(--text)}
+    .filter-tag.active{
+      background:var(--filter-active-bg);
+      color:var(--filter-active-text);font-weight:700;
+    }
 
-    /* === Masonry grid === */
+    /* === Masonry container (JS-powered columns) === */
     .gallery{
-      max-width:1400px;margin:0 auto;padding:16px 24px 80px;
-      columns:4 280px;column-gap:12px;
+      max-width:960px;margin:0 auto;
+      padding:16px 32px 100px;
+      display:flex;gap:16px;
+      align-items:flex-start;
+    }
+    .gallery-col{
+      flex:1;display:flex;flex-direction:column;gap:16px;
     }
 
-    /* === Card === */
-    .card{
-      break-inside:avoid;margin-bottom:12px;
-      border-radius:12px;overflow:hidden;
-      background:var(--surface);border:1px solid var(--border);
-      cursor:pointer;transition:transform .3s ease,box-shadow .3s ease;
+    /* === Image item — no card, just art === */
+    .item{
+      position:relative;cursor:pointer;
+      border-radius:var(--img-radius);overflow:hidden;
+      box-shadow:var(--img-shadow);
+      transition:box-shadow .3s,transform .3s;
+      line-height:0;
     }
-    .card:hover{
-      transform:translateY(-2px);
-      box-shadow:0 12px 32px rgba(0,0,0,.3);
+    .item:hover{
+      transform:translateY(-3px);
+      box-shadow:var(--img-shadow-hover);
     }
-    .card img{
+    .item img{
       width:100%;display:block;
-      transition:opacity .4s;
+      transition:filter .3s;
     }
-    .card-info{padding:12px 14px}
-    .card-title{font-size:.82rem;font-weight:700}
-    .card-meta{
-      font-size:.7rem;color:var(--text-dim);margin-top:4px;
-      display:flex;gap:8px;align-items:center;
-    }
-    .card-tag{
-      font-size:.6rem;padding:2px 7px;border-radius:9999px;
-      background:rgba(167,139,250,.1);color:var(--accent);
-      border:1px solid rgba(167,139,250,.15);
-    }
+    .item:hover img{filter:brightness(.92)}
 
-    /* === Lightbox === */
+    /* === Lightbox — gallery-style viewer === */
     .lightbox{
       position:fixed;inset:0;z-index:200;
-      background:rgba(0,0,0,.92);
-      backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
-      display:none;align-items:center;justify-content:center;
-      cursor:zoom-out;
+      background:var(--lb-bg);
+      display:none;flex-direction:column;
+      align-items:center;
+      overflow-y:auto;
+      transition:background .35s;
     }
     .lightbox.open{display:flex}
-    .lightbox img{
-      max-width:90vw;max-height:90vh;
-      border-radius:8px;
-      box-shadow:0 24px 64px rgba(0,0,0,.5);
+
+    .lb-top{
+      width:100%;max-width:720px;
+      padding:80px 32px 0;
     }
-    .lightbox-close{
-      position:absolute;top:20px;right:24px;
-      font-size:1.5rem;color:rgba(255,255,255,.5);
-      cursor:pointer;background:none;border:none;
-      transition:color .2s;
+    .lb-img{
+      width:100%;display:block;
+      border-radius:var(--img-radius);
+      box-shadow:var(--img-shadow);
     }
-    .lightbox-close:hover{color:#fff}
-    .lightbox-info{
-      position:absolute;bottom:24px;left:50%;transform:translateX(-50%);
-      text-align:center;color:rgba(255,255,255,.6);font-size:.82rem;
+    .lb-info{
+      max-width:720px;width:100%;
+      padding:20px 32px 60px;
     }
+    .lb-title{font-size:1.05rem;font-weight:700;color:var(--lb-text)}
+    .lb-date{font-size:.78rem;color:var(--lb-text-sec);margin-top:4px}
+    .lb-tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+    .lb-tag{
+      font-size:.7rem;padding:3px 10px;border-radius:9999px;
+      background:var(--lb-tag-bg);color:var(--lb-text-sec);
+    }
+
+    .lb-close{
+      position:fixed;top:16px;right:24px;z-index:210;
+      width:36px;height:36px;border-radius:50%;
+      display:flex;align-items:center;justify-content:center;
+      font-size:1.2rem;color:var(--text-sec);
+      background:var(--filter-bg);border:none;cursor:pointer;
+      transition:all .2s;
+    }
+    .lb-close:hover{color:var(--text);background:var(--filter-hover)}
+
+    .lb-nav{
+      position:fixed;top:50%;transform:translateY(-50%);z-index:210;
+      width:40px;height:40px;border-radius:50%;
+      display:flex;align-items:center;justify-content:center;
+      font-size:1.3rem;color:var(--text-sec);
+      background:var(--filter-bg);border:none;cursor:pointer;
+      transition:all .2s;
+    }
+    .lb-nav:hover{color:var(--text);background:var(--filter-hover)}
+    .lb-prev{left:16px}
+    .lb-next{right:16px}
 
     /* === Empty state === */
     .empty{
-      text-align:center;padding:120px 24px;
-      color:var(--text-dim);
+      width:100%;text-align:center;padding:120px 24px;color:var(--empty-text);
     }
-    .empty-icon{font-size:3rem;margin-bottom:16px;opacity:.3}
-    .empty-text{font-size:.9rem;line-height:1.8}
+    .empty-text{font-size:.88rem;line-height:2}
     .empty code{
-      font-family:'JetBrains Mono',monospace;
       font-size:.8rem;padding:2px 8px;border-radius:6px;
-      background:var(--surface);border:1px solid var(--border);
+      background:var(--filter-bg);
     }
 
     /* === Responsive === */
-    @media(max-width:900px){.gallery{columns:3}}
-    @media(max-width:600px){
-      .gallery{columns:2;padding:12px 12px 60px;column-gap:8px}
-      .card{margin-bottom:8px;border-radius:8px}
-      .card-info{padding:10px 12px}
-      .header{padding:14px 16px}
-      .filters{padding:16px 12px 4px}
+    @media(max-width:640px){
+      .header{padding:0 20px}
+      .filter-bar{padding:16px 20px 4px}
+      .gallery{padding:12px 20px 80px;gap:10px}
+      .gallery-col{gap:10px}
+      .item{border-radius:4px}
+      .lb-top{padding:64px 16px 0}
+      .lb-info{padding:16px 16px 48px}
+      .lb-nav{display:none}
     }
 
     /* === Fade-in === */
-    .card{opacity:0;animation:fadeUp .5s ease forwards}
-    @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+    .item{opacity:0;animation:appear .45s ease forwards}
+    @keyframes appear{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
   </style>
 </head>
 <body>
 
-  <!-- Header -->
   <header class="header">
-    <div class="header-brand">heznpc<span>/gallery</span></div>
-    <a href="https://heznpc.github.io" style="font-size:.75rem;opacity:.4;transition:opacity .2s" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='.4'">dev portfolio &rarr;</a>
+    <div class="header-brand">gallery</div>
+    <div class="header-right">
+      <a class="header-link" href="https://heznpc.github.io">heznpc.github.io</a>
+      <button class="theme-btn" id="themeToggle" aria-label="Toggle theme"></button>
+    </div>
   </header>
 
-  <!-- Filters -->
-  <div class="filters" id="filters">
+  <div class="filter-bar" id="filters">
     <button class="filter-tag active" data-tag="all">전체</button>
   </div>
 
-  <!-- Gallery -->
   <div class="gallery" id="gallery"></div>
 
-  <!-- Lightbox -->
   <div class="lightbox" id="lightbox">
-    <button class="lightbox-close" id="lightboxClose">&times;</button>
-    <img id="lightboxImg" src="" alt="">
-    <div class="lightbox-info" id="lightboxInfo"></div>
+    <button class="lb-close" id="lbClose">&times;</button>
+    <button class="lb-nav lb-prev" id="lbPrev">&#8249;</button>
+    <button class="lb-nav lb-next" id="lbNext">&#8250;</button>
+    <div class="lb-top"><img class="lb-img" id="lbImg" src="" alt=""></div>
+    <div class="lb-info">
+      <div class="lb-title" id="lbTitle"></div>
+      <div class="lb-date" id="lbDate"></div>
+      <div class="lb-tags" id="lbTags"></div>
+    </div>
   </div>
 
   <script>
@@ -177,7 +247,6 @@
     // 여기에 그림 데이터 추가
     // =============================
     var WORKS = [
-      // 예시 (이미지 추가 시 이 형식으로):
       // {
       //   src: "img/example.png",
       //   title: "제목",
@@ -186,15 +255,36 @@
       // },
     ];
 
-    // === Render ===
+    // === State ===
     var gallery = document.getElementById('gallery');
     var filters = document.getElementById('filters');
     var lightbox = document.getElementById('lightbox');
-    var lightboxImg = document.getElementById('lightboxImg');
-    var lightboxInfo = document.getElementById('lightboxInfo');
-    var activeTag = 'all';
+    var currentIdx = -1;
+    var filtered = [];
+    var COL_COUNT = 3;
 
-    // Collect all tags
+    // === Theme ===
+    (function() {
+      var root = document.documentElement;
+      var btn = document.getElementById('themeToggle');
+      function u() { btn.textContent = root.dataset.theme === 'dark' ? '\u2600' : '\u263E'; }
+      try { var s = localStorage.getItem('gallery-theme'); if (s) root.dataset.theme = s; } catch(e) {}
+      u();
+      btn.addEventListener('click', function() {
+        root.dataset.theme = root.dataset.theme === 'dark' ? 'light' : 'dark';
+        try { localStorage.setItem('gallery-theme', root.dataset.theme); } catch(e) {}
+        u();
+      });
+    })();
+
+    // === Responsive columns ===
+    function getCols() {
+      if (window.innerWidth <= 640) return 2;
+      if (window.innerWidth <= 900) return 2;
+      return 3;
+    }
+
+    // === Tags ===
     var allTags = [];
     WORKS.forEach(function(w) {
       (w.tags || []).forEach(function(t) {
@@ -209,78 +299,126 @@
       filters.appendChild(btn);
     });
 
-    function renderGallery() {
-      var filtered = activeTag === 'all'
-        ? WORKS
-        : WORKS.filter(function(w) { return (w.tags || []).indexOf(activeTag) !== -1; });
-
-      if (filtered.length === 0) {
-        gallery.innerHTML =
-          '<div class="empty">' +
-          '<div class="empty-icon">\uD83C\uDFA8</div>' +
-          '<div class="empty-text">아직 작품이 없습니다<br>' +
-          '<code>WORKS</code> 배열에 이미지를 추가하세요</div>' +
-          '</div>';
-        return;
-      }
-
-      gallery.innerHTML = '';
-      filtered.forEach(function(w, i) {
-        var card = document.createElement('div');
-        card.className = 'card';
-        card.style.animationDelay = (i * 60) + 'ms';
-
-        var tagsHtml = (w.tags || []).map(function(t) {
-          return '<span class="card-tag">' + t + '</span>';
-        }).join(' ');
-
-        card.innerHTML =
-          '<img src="' + w.src + '" alt="' + (w.title || '') + '" loading="lazy">' +
-          '<div class="card-info">' +
-          '<div class="card-title">' + (w.title || '') + '</div>' +
-          '<div class="card-meta">' +
-          (w.date ? '<span>' + w.date + '</span>' : '') +
-          tagsHtml +
-          '</div></div>';
-
-        card.addEventListener('click', function() {
-          lightboxImg.src = w.src;
-          lightboxInfo.textContent = (w.title || '') + (w.date ? ' \u00B7 ' + w.date : '');
-          lightbox.classList.add('open');
-          document.body.style.overflow = 'hidden';
-        });
-
-        gallery.appendChild(card);
-      });
-    }
-
-    // Filter click
+    var activeTag = 'all';
     filters.addEventListener('click', function(e) {
       if (!e.target.classList.contains('filter-tag')) return;
       document.querySelectorAll('.filter-tag').forEach(function(b) { b.classList.remove('active'); });
       e.target.classList.add('active');
       activeTag = e.target.dataset.tag;
-      renderGallery();
+      render();
     });
 
-    // Lightbox close
+    // === Render masonry (shortest-column-first, L→R) ===
+    function render() {
+      filtered = activeTag === 'all'
+        ? WORKS.slice()
+        : WORKS.filter(function(w) { return (w.tags || []).indexOf(activeTag) !== -1; });
+
+      var cols = getCols();
+      gallery.innerHTML = '';
+
+      if (filtered.length === 0) {
+        gallery.style.display = 'block';
+        gallery.innerHTML =
+          '<div class="empty"><div class="empty-text">' +
+          '아직 작품이 없습니다<br><code>WORKS</code> 배열에 이미지를 추가하세요</div></div>';
+        return;
+      }
+
+      gallery.style.display = 'flex';
+
+      // Create column elements
+      var colEls = [];
+      var colH = [];
+      for (var c = 0; c < cols; c++) {
+        var col = document.createElement('div');
+        col.className = 'gallery-col';
+        gallery.appendChild(col);
+        colEls.push(col);
+        colH.push(0);
+      }
+
+      // Distribute items to shortest column
+      filtered.forEach(function(w, i) {
+        // Find shortest column
+        var minIdx = 0;
+        for (var c = 1; c < cols; c++) {
+          if (colH[c] < colH[minIdx]) minIdx = c;
+        }
+
+        var item = document.createElement('div');
+        item.className = 'item';
+        item.style.animationDelay = (i * 40) + 'ms';
+        item.innerHTML = '<img src="' + w.src + '" alt="' + (w.title || '') + '" loading="lazy">';
+        item.addEventListener('click', (function(idx) {
+          return function() { openLB(idx); };
+        })(i));
+
+        colEls[minIdx].appendChild(item);
+        // Estimate height (will be refined when image loads, but rough is fine)
+        colH[minIdx] += 300;
+
+        // Refine height on load
+        var img = item.querySelector('img');
+        img.addEventListener('load', (function(ci, el) {
+          return function() {
+            colH[ci] += this.naturalHeight / this.naturalWidth * el.offsetWidth - 300;
+          };
+        })(minIdx, item));
+      });
+    }
+
+    // === Lightbox ===
+    function openLB(idx) {
+      currentIdx = idx;
+      showLB();
+      lightbox.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function showLB() {
+      var w = filtered[currentIdx];
+      document.getElementById('lbImg').src = w.src;
+      document.getElementById('lbTitle').textContent = w.title || '';
+      document.getElementById('lbDate').textContent = w.date || '';
+      document.getElementById('lbTags').innerHTML = (w.tags || []).map(function(t) {
+        return '<span class="lb-tag">' + t + '</span>';
+      }).join('');
+      lightbox.scrollTop = 0;
+    }
+
+    function closeLB() {
+      lightbox.classList.remove('open');
+      document.body.style.overflow = '';
+      currentIdx = -1;
+    }
+
+    function nav(dir) {
+      if (currentIdx < 0 || filtered.length === 0) return;
+      currentIdx = (currentIdx + dir + filtered.length) % filtered.length;
+      showLB();
+    }
+
+    document.getElementById('lbClose').addEventListener('click', closeLB);
+    document.getElementById('lbPrev').addEventListener('click', function(e) { e.stopPropagation(); nav(-1); });
+    document.getElementById('lbNext').addEventListener('click', function(e) { e.stopPropagation(); nav(1); });
     lightbox.addEventListener('click', function(e) {
-      if (e.target === lightboxImg) return;
-      lightbox.classList.remove('open');
-      document.body.style.overflow = '';
-    });
-    document.getElementById('lightboxClose').addEventListener('click', function() {
-      lightbox.classList.remove('open');
-      document.body.style.overflow = '';
+      if (e.target === lightbox) closeLB();
     });
     document.addEventListener('keydown', function(e) {
-      if (e.key === 'Escape') {
-        lightbox.classList.remove('open');
-        document.body.style.overflow = '';
-      }
+      if (!lightbox.classList.contains('open')) return;
+      if (e.key === 'Escape') closeLB();
+      if (e.key === 'ArrowLeft') nav(-1);
+      if (e.key === 'ArrowRight') nav(1);
     });
 
-    renderGallery();
+    // === Init + resize ===
+    render();
+    var resizeTimer;
+    window.addEventListener('resize', function() {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(render, 200);
+    });
   </script>
 </body>
 </html>
