@@ -319,9 +319,13 @@
 
       if (filtered.length === 0) {
         gallery.style.display = 'block';
-        gallery.innerHTML =
-          '<div class="empty"><div class="empty-text">' +
-          '아직 작품이 없습니다<br><code>WORKS</code> 배열에 이미지를 추가하세요</div></div>';
+        var empty = document.createElement('div');
+        empty.className = 'empty';
+        var emptyText = document.createElement('div');
+        emptyText.className = 'empty-text';
+        emptyText.innerHTML = '아직 작품이 없습니다<br><code>WORKS</code> 배열에 이미지를 추가하세요';
+        empty.appendChild(emptyText);
+        gallery.appendChild(empty);
         return;
       }
 
@@ -349,7 +353,11 @@
         var item = document.createElement('div');
         item.className = 'item';
         item.style.animationDelay = (i * 40) + 'ms';
-        item.innerHTML = '<img src="' + w.src + '" alt="' + (w.title || '') + '" loading="lazy">';
+        var img = document.createElement('img');
+        img.setAttribute('src', w.src);
+        img.setAttribute('alt', w.title || '');
+        img.setAttribute('loading', 'lazy');
+        item.appendChild(img);
         item.addEventListener('click', (function(idx) {
           return function() { openLB(idx); };
         })(i));
@@ -359,7 +367,6 @@
         colH[minIdx] += 300;
 
         // Refine height on load
-        var img = item.querySelector('img');
         img.addEventListener('load', (function(ci, el) {
           return function() {
             colH[ci] += this.naturalHeight / this.naturalWidth * el.offsetWidth - 300;
@@ -381,9 +388,14 @@
       document.getElementById('lbImg').src = w.src;
       document.getElementById('lbTitle').textContent = w.title || '';
       document.getElementById('lbDate').textContent = w.date || '';
-      document.getElementById('lbTags').innerHTML = (w.tags || []).map(function(t) {
-        return '<span class="lb-tag">' + t + '</span>';
-      }).join('');
+      var lbTagsEl = document.getElementById('lbTags');
+      lbTagsEl.innerHTML = '';
+      (w.tags || []).forEach(function(t) {
+        var span = document.createElement('span');
+        span.className = 'lb-tag';
+        span.textContent = t;
+        lbTagsEl.appendChild(span);
+      });
       lightbox.scrollTop = 0;
     }
 
