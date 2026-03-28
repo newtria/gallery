@@ -86,6 +86,27 @@
     }
     .theme-btn:hover{color:var(--text)}
 
+    /* === Profile === */
+    .profile{
+      max-width:960px;margin:0 auto;
+      padding:32px 32px 0;
+      display:flex;align-items:center;gap:16px;
+    }
+    .profile-avatar{
+      width:56px;height:56px;border-radius:50%;
+      object-fit:cover;flex-shrink:0;
+      box-shadow:var(--img-shadow);
+    }
+    .profile-text{display:flex;flex-direction:column;gap:2px}
+    .profile-name{font-size:.95rem;font-weight:700}
+    .profile-bio{font-size:.78rem;color:var(--text-sec);line-height:1.5}
+    .profile-links{display:flex;gap:12px;margin-top:4px}
+    .profile-links a{
+      font-size:.72rem;color:var(--text-sec);
+      transition:color .2s;
+    }
+    .profile-links a:hover{color:var(--text)}
+
     /* === Filters — understated === */
     .filter-bar{
       max-width:960px;margin:0 auto;
@@ -159,6 +180,7 @@
     }
     .lb-title{font-size:1.05rem;font-weight:700;color:var(--lb-text)}
     .lb-date{font-size:.78rem;color:var(--lb-text-sec);margin-top:4px}
+    .lb-desc{font-size:.82rem;color:var(--lb-text-sec);margin-top:10px;line-height:1.7}
     .lb-tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
     .lb-tag{
       font-size:.7rem;padding:3px 10px;border-radius:9999px;
@@ -200,6 +222,8 @@
     /* === Responsive === */
     @media(max-width:640px){
       .header{padding:0 20px}
+      .profile{padding:24px 20px 0}
+      .profile-avatar{width:48px;height:48px}
       .filter-bar{padding:16px 20px 4px}
       .gallery{padding:12px 20px 80px;gap:10px}
       .gallery-col{gap:10px}
@@ -224,6 +248,18 @@
     </div>
   </header>
 
+  <div class="profile">
+    <img class="profile-avatar" src="img/avatar.png" alt="avatar">
+    <div class="profile-text">
+      <div class="profile-name">heznpc</div>
+      <div class="profile-bio">2차 창작 / 유머 일러스트</div>
+      <div class="profile-links">
+        <a href="https://x.com/heznpc" target="_blank" rel="noopener">X</a>
+        <a href="https://www.pixiv.net/users/heznpc" target="_blank" rel="noopener">pixiv</a>
+      </div>
+    </div>
+  </div>
+
   <div class="filter-bar" id="filters">
     <button class="filter-tag active" data-tag="all">전체</button>
   </div>
@@ -238,6 +274,7 @@
     <div class="lb-info">
       <div class="lb-title" id="lbTitle"></div>
       <div class="lb-date" id="lbDate"></div>
+      <div class="lb-desc" id="lbDesc"></div>
       <div class="lb-tags" id="lbTags"></div>
     </div>
   </div>
@@ -250,6 +287,7 @@
       // {
       //   src: "img/example.png",
       //   title: "제목",
+      //   desc: "작업 설명",
       //   tags: ["태그1", "태그2"],
       //   date: "2026-03"
       // },
@@ -259,9 +297,13 @@
     var gallery = document.getElementById('gallery');
     var filters = document.getElementById('filters');
     var lightbox = document.getElementById('lightbox');
+    var lbImgEl = document.getElementById('lbImg');
+    var lbTitleEl = document.getElementById('lbTitle');
+    var lbDateEl = document.getElementById('lbDate');
+    var lbDescEl = document.getElementById('lbDesc');
+    var lbTagsEl = document.getElementById('lbTags');
     var currentIdx = -1;
     var filtered = [];
-    var COL_COUNT = 3;
 
     // === Theme ===
     (function() {
@@ -279,9 +321,7 @@
 
     // === Responsive columns ===
     function getCols() {
-      if (window.innerWidth <= 640) return 2;
-      if (window.innerWidth <= 900) return 2;
-      return 3;
+      return window.innerWidth <= 900 ? 2 : 3;
     }
 
     // === Tags ===
@@ -385,10 +425,11 @@
 
     function showLB() {
       var w = filtered[currentIdx];
-      document.getElementById('lbImg').src = w.src;
-      document.getElementById('lbTitle').textContent = w.title || '';
-      document.getElementById('lbDate').textContent = w.date || '';
-      var lbTagsEl = document.getElementById('lbTags');
+      lbImgEl.src = w.src;
+      lbTitleEl.textContent = w.title || '';
+      lbDateEl.textContent = w.date || '';
+      lbDescEl.textContent = w.desc || '';
+      lbDescEl.style.display = w.desc ? '' : 'none';
       lbTagsEl.innerHTML = '';
       (w.tags || []).forEach(function(t) {
         var span = document.createElement('span');
@@ -397,12 +438,15 @@
         lbTagsEl.appendChild(span);
       });
       lightbox.scrollTop = 0;
+      var globalIdx = WORKS.indexOf(w);
+      history.replaceState(null, '', '#work-' + globalIdx);
     }
 
     function closeLB() {
       lightbox.classList.remove('open');
       document.body.style.overflow = '';
       currentIdx = -1;
+      history.replaceState(null, '', location.pathname);
     }
 
     function nav(dir) {
@@ -424,8 +468,19 @@
       if (e.key === 'ArrowRight') nav(1);
     });
 
-    // === Init + resize ===
     render();
+
+    (function() {
+      var m = location.hash.match(/^#work-(\d+)$/);
+      if (m) {
+        var idx = parseInt(m[1], 10);
+        if (idx >= 0 && idx < WORKS.length) {
+          var fIdx = filtered.indexOf(WORKS[idx]);
+          if (fIdx !== -1) openLB(fIdx);
+        }
+      }
+    })();
+
     var resizeTimer;
     window.addEventListener('resize', function() {
       clearTimeout(resizeTimer);
