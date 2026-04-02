@@ -1,0 +1,208 @@
+---
+import Base from '../layouts/Base.astro';
+import Header from '../components/Header.astro';
+import commissionData from '../data/commission.json';
+
+const { status, lastUpdated, tiers, process, faq } = commissionData;
+
+function formatPrice(n: number): string {
+  return n.toLocaleString('ko-KR');
+}
+---
+
+<Base title="heznpc — commission" description="커미션 안내">
+  <Header currentPath="/commission" />
+
+  <div class="commission">
+    <!-- Status -->
+    <section class="cm-section">
+      <div class="cm-status-row">
+        <span class:list={['cm-status-badge', status === 'open' ? 'cm-open' : 'cm-closed']}>
+          {status === 'open' ? 'OPEN' : 'CLOSED'}
+        </span>
+        <span class="cm-updated">마지막 업데이트 {lastUpdated}</span>
+      </div>
+    </section>
+
+    <!-- Pricing tiers -->
+    <section class="cm-section">
+      <h2 class="cm-heading">가격 안내</h2>
+      <div class="cm-tiers">
+        {tiers.map((tier) => (
+          <div class="cm-tier">
+            <div class="cm-tier-name">{tier.name}</div>
+            <div class="cm-tier-desc">{tier.description}</div>
+            <div class="cm-tier-price">
+              {formatPrice(tier.priceMin)}&ndash;{formatPrice(tier.priceMax)}원
+            </div>
+            <div class="cm-tier-turn">{tier.turnaround}</div>
+            <ul class="cm-tier-list">
+              {tier.inclusions.map((item) => (
+                <li>{item}</li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <!-- Process -->
+    <section class="cm-section">
+      <h2 class="cm-heading">진행 과정</h2>
+      <div class="cm-steps">
+        {process.map((p) => (
+          <div class="cm-step">
+            <span class="cm-step-num">{p.step}</span>
+            <div class="cm-step-body">
+              <div class="cm-step-title">{p.title}</div>
+              <div class="cm-step-desc">{p.description}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="cm-section">
+      <h2 class="cm-heading">자주 묻는 질문</h2>
+      <div class="cm-faq">
+        {faq.map((item, i) => (
+          <details class="cm-faq-item" data-faq={i}>
+            <summary class="cm-faq-q">{item.q}</summary>
+            <div class="cm-faq-a">{item.a}</div>
+          </details>
+        ))}
+      </div>
+    </section>
+  </div>
+</Base>
+
+<style>
+  .commission{
+    max-width:720px;margin:0 auto;
+    padding:32px 32px 100px;
+  }
+
+  .cm-section{margin-bottom:40px}
+
+  .cm-heading{
+    font-size:.88rem;font-weight:700;
+    margin-bottom:16px;
+    letter-spacing:-.01em;
+  }
+
+  /* Status */
+  .cm-status-row{
+    display:flex;align-items:center;gap:12px;
+  }
+  .cm-status-badge{
+    display:inline-block;
+    padding:4px 14px;border-radius:9999px;
+    font-size:.72rem;font-weight:700;letter-spacing:.04em;
+  }
+  .cm-open{
+    background:rgba(34,139,34,.1);color:#228b22;
+  }
+  :global([data-theme="dark"]) .cm-open{
+    background:rgba(34,139,34,.15);color:#5cb85c;
+  }
+  .cm-closed{
+    background:rgba(180,40,40,.1);color:#b42828;
+  }
+  :global([data-theme="dark"]) .cm-closed{
+    background:rgba(180,40,40,.15);color:#e05555;
+  }
+  .cm-updated{
+    font-size:.72rem;color:var(--text-sec);
+  }
+
+  /* Tiers */
+  .cm-tiers{
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+    gap:12px;
+  }
+  .cm-tier{
+    padding:20px;border-radius:8px;
+    background:var(--filter-bg);
+    transition:background .35s;
+  }
+  .cm-tier-name{
+    font-size:.88rem;font-weight:700;margin-bottom:4px;
+  }
+  .cm-tier-desc{
+    font-size:.74rem;color:var(--text-sec);margin-bottom:12px;
+    line-height:1.5;
+  }
+  .cm-tier-price{
+    font-size:.95rem;font-weight:700;margin-bottom:2px;
+  }
+  .cm-tier-turn{
+    font-size:.72rem;color:var(--text-sec);margin-bottom:12px;
+  }
+  .cm-tier-list{
+    list-style:none;padding:0;
+  }
+  .cm-tier-list li{
+    font-size:.74rem;color:var(--text-sec);
+    padding:3px 0;line-height:1.5;
+  }
+  .cm-tier-list li::before{
+    content:'\2022';margin-right:8px;color:var(--text-sec);opacity:.5;
+  }
+
+  /* Process steps */
+  .cm-steps{
+    display:flex;flex-direction:column;gap:0;
+  }
+  .cm-step{
+    display:flex;align-items:flex-start;gap:14px;
+    padding:14px 0;
+    border-bottom:1px solid var(--header-border);
+  }
+  .cm-step:last-child{border-bottom:none}
+  .cm-step-num{
+    flex-shrink:0;
+    width:24px;height:24px;border-radius:50%;
+    background:var(--filter-bg);
+    display:flex;align-items:center;justify-content:center;
+    font-size:.7rem;font-weight:700;color:var(--text-sec);
+  }
+  .cm-step-body{display:flex;flex-direction:column;gap:2px}
+  .cm-step-title{font-size:.82rem;font-weight:600}
+  .cm-step-desc{font-size:.74rem;color:var(--text-sec);line-height:1.6}
+
+  /* FAQ accordion */
+  .cm-faq{
+    display:flex;flex-direction:column;gap:0;
+  }
+  .cm-faq-item{
+    border-bottom:1px solid var(--header-border);
+  }
+  .cm-faq-item:last-child{border-bottom:none}
+  .cm-faq-q{
+    padding:14px 0;cursor:pointer;
+    font-size:.82rem;font-weight:500;
+    list-style:none;
+    display:flex;align-items:center;justify-content:space-between;
+  }
+  .cm-faq-q::-webkit-details-marker{display:none}
+  .cm-faq-q::after{
+    content:'\203A';
+    font-size:1.1rem;color:var(--text-sec);
+    transition:transform .2s;
+    transform:rotate(90deg);
+  }
+  .cm-faq-item[open] .cm-faq-q::after{
+    transform:rotate(270deg);
+  }
+  .cm-faq-a{
+    padding:0 0 14px;
+    font-size:.78rem;color:var(--text-sec);line-height:1.7;
+  }
+
+  /* Responsive */
+  @media(max-width:640px){
+    .commission{padding:24px 20px 80px}
+    .cm-tiers{grid-template-columns:1fr}
+  }
+</style>

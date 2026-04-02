@@ -1,0 +1,201 @@
+---
+import galleryData from '../data/gallery.json';
+
+const works = galleryData.works;
+
+// Collect unique tags from all works
+const allTags: string[] = [];
+for (const w of works) {
+  for (const t of w.tags) {
+    if (!allTags.includes(t)) allTags.push(t);
+  }
+}
+---
+
+<div class="filter-bar" id="filters">
+  <button class="filter-tag active" data-tag="all">전체</button>
+  {allTags.map((tag) => (
+    <button class="filter-tag" data-tag={tag}>{tag}</button>
+  ))}
+</div>
+
+<div class="gallery" id="gallery"></div>
+
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox">
+  <button class="lb-close" id="lbClose">&times;</button>
+  <button class="lb-nav lb-prev" id="lbPrev">&#8249;</button>
+  <button class="lb-nav lb-next" id="lbNext">&#8250;</button>
+  <div class="lb-top"><img class="lb-img" id="lbImg" src="" alt=""></div>
+  <div class="lb-info">
+    <div class="lb-title" id="lbTitle"></div>
+    <div class="lb-date" id="lbDate"></div>
+    <div class="lb-desc" id="lbDesc"></div>
+    <div class="lb-tags" id="lbTags"></div>
+  </div>
+</div>
+
+<script is:inline define:vars={{ works }}>
+  var WORKS = works;
+
+  var gallery = document.getElementById('gallery');
+  var filters = document.getElementById('filters');
+  var lightbox = document.getElementById('lightbox');
+  var lbImgEl = document.getElementById('lbImg');
+  var lbTitleEl = document.getElementById('lbTitle');
+  var lbDateEl = document.getElementById('lbDate');
+  var lbDescEl = document.getElementById('lbDesc');
+  var lbTagsEl = document.getElementById('lbTags');
+  var currentIdx = -1;
+  var filtered = [];
+  var activeTag = 'all';
+
+  // === Tag filter clicks ===
+  filters.addEventListener('click', function(e) {
+    if (!e.target.classList.contains('filter-tag')) return;
+    document.querySelectorAll('.filter-tag').forEach(function(b) { b.classList.remove('active'); });
+    e.target.classList.add('active');
+    activeTag = e.target.dataset.tag;
+    render();
+  });
+
+  // === Responsive columns ===
+  function getCols() {
+    return window.innerWidth <= 900 ? 2 : 3;
+  }
+
+  // === Render masonry ===
+  function render() {
+    filtered = activeTag === 'all'
+      ? WORKS.slice()
+      : WORKS.filter(function(w) { return (w.tags || []).indexOf(activeTag) !== -1; });
+
+    var cols = getCols();
+    gallery.innerHTML = '';
+
+    if (filtered.length === 0) {
+      gallery.style.display = 'block';
+      var empty = document.createElement('div');
+      empty.className = 'empty';
+      var emptyText = document.createElement('div');
+      emptyText.className = 'empty-text';
+      emptyText.textContent = '아직 작품이 없습니다';
+      empty.appendChild(emptyText);
+      gallery.appendChild(empty);
+      return;
+    }
+
+    gallery.style.display = 'flex';
+
+    var colEls = [];
+    var colH = [];
+    for (var c = 0; c < cols; c++) {
+      var col = document.createElement('div');
+      col.className = 'gallery-col';
+      gallery.appendChild(col);
+      colEls.push(col);
+      colH.push(0);
+    }
+
+    filtered.forEach(function(w, i) {
+      var minIdx = 0;
+      for (var c = 1; c < cols; c++) {
+        if (colH[c] < colH[minIdx]) minIdx = c;
+      }
+
+      var item = document.createElement('div');
+      item.className = 'item';
+      item.style.animationDelay = (i * 40) + 'ms';
+      var img = document.createElement('img');
+      img.setAttribute('src', w.image);
+      img.setAttribute('alt', w.title || '');
+      img.setAttribute('loading', 'lazy');
+      item.appendChild(img);
+      item.addEventListener('click', (function(idx) {
+        return function() { openLB(idx); };
+      })(i));
+
+      colEls[minIdx].appendChild(item);
+      colH[minIdx] += 300;
+
+      img.addEventListener('load', (function(ci, el) {
+        return function() {
+          colH[ci] += this.naturalHeight / this.naturalWidth * el.offsetWidth - 300;
+        };
+      })(minIdx, item));
+    });
+  }
+
+  // === Lightbox ===
+  function openLB(idx) {
+    currentIdx = idx;
+    showLB();
+    lightbox.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function showLB() {
+    var w = filtered[currentIdx];
+    lbImgEl.src = w.image;
+    lbTitleEl.textContent = w.title || '';
+    lbDateEl.textContent = w.date || '';
+    lbDescEl.textContent = w.description || '';
+    lbDescEl.style.display = w.description ? '' : 'none';
+    lbTagsEl.innerHTML = '';
+    (w.tags || []).forEach(function(t) {
+      var span = document.createElement('span');
+      span.className = 'lb-tag';
+      span.textContent = t;
+      lbTagsEl.appendChild(span);
+    });
+    lightbox.scrollTop = 0;
+    var globalIdx = WORKS.indexOf(w);
+    history.replaceState(null, '', '#work-' + globalIdx);
+  }
+
+  function closeLB() {
+    lightbox.classList.remove('open');
+    document.body.style.overflow = '';
+    currentIdx = -1;
+    history.replaceState(null, '', location.pathname);
+  }
+
+  function nav(dir) {
+    if (currentIdx < 0 || filtered.length === 0) return;
+    currentIdx = (currentIdx + dir + filtered.length) % filtered.length;
+    showLB();
+  }
+
+  document.getElementById('lbClose').addEventListener('click', closeLB);
+  document.getElementById('lbPrev').addEventListener('click', function(e) { e.stopPropagation(); nav(-1); });
+  document.getElementById('lbNext').addEventListener('click', function(e) { e.stopPropagation(); nav(1); });
+  lightbox.addEventListener('click', function(e) {
+    if (e.target === lightbox) closeLB();
+  });
+  document.addEventListener('keydown', function(e) {
+    if (!lightbox.classList.contains('open')) return;
+    if (e.key === 'Escape') closeLB();
+    if (e.key === 'ArrowLeft') nav(-1);
+    if (e.key === 'ArrowRight') nav(1);
+  });
+
+  render();
+
+  // Permalink support
+  (function() {
+    var m = location.hash.match(/^#work-(\d+)$/);
+    if (m) {
+      var idx = parseInt(m[1], 10);
+      if (idx >= 0 && idx < WORKS.length) {
+        var fIdx = filtered.indexOf(WORKS[idx]);
+        if (fIdx !== -1) openLB(fIdx);
+      }
+    }
+  })();
+
+  var resizeTimer;
+  window.addEventListener('resize', function() {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(render, 200);
+  });
+</script>

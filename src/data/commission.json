@@ -1,0 +1,45 @@
+{
+  "status": "open",
+  "lastUpdated": "2026-03",
+  "tiers": [
+    {
+      "id": "sketch",
+      "name": "스케치",
+      "description": "러프 스케치 / 선화",
+      "priceMin": 30000,
+      "priceMax": 50000,
+      "turnaround": "3\u20135일",
+      "inclusions": ["러프 스케치 1장", "수정 1회", "고해상도 PNG"]
+    },
+    {
+      "id": "lineart",
+      "name": "라인아트",
+      "description": "깔끔한 선화 작업",
+      "priceMin": 50000,
+      "priceMax": 80000,
+      "turnaround": "5\u20137일",
+      "inclusions": ["정밀 선화 1장", "수정 2회", "고해상도 PNG/PSD"]
+    },
+    {
+      "id": "color",
+      "name": "풀 컬러",
+      "description": "채색 완성 일러스트",
+      "priceMin": 100000,
+      "priceMax": 200000,
+      "turnaround": "7\u201314일",
+      "inclusions": ["풀 컬러 일러스트 1장", "수정 3회", "고해상도 PNG/PSD", "간단 배경 포함"]
+    }
+  ],
+  "process": [
+    { "step": 1, "title": "상담", "description": "원하시는 작업 내용을 DM으로 알려주세요." },
+    { "step": 2, "title": "견적", "description": "내용 확인 후 견적과 일정을 안내드립니다." },
+    { "step": 3, "title": "입금", "description": "선입금 50% 확인 후 작업을 시작합니다." },
+    { "step": 4, "title": "작업", "description": "중간 확인 후 수정 반영하여 완성합니다." },
+    { "step": 5, "title": "전달", "description": "잔금 확인 후 최종 파일을 전달합니다." }
+  ],
+  "faq": [
+    { "q": "상업적 사용이 가능한가요?", "a": "상업적 사용은 별도 요금이 부과됩니다. 상담 시 말씀해주세요." },
+    { "q": "수정은 몇 번 가능한가요?", "a": "티어별로 수정 횟수가 다릅니다. 추가 수정은 건당 비용이 발생합니다." },
+    { "q": "작업 기간은 얼마나 걸리나요?", "a": "티어와 복잡도에 따라 다르지만, 일반적으로 안내드린 기간 내 완성됩니다." }
+  ]
+}
