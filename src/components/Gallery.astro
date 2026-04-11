@@ -1,7 +1,28 @@
 ---
 import galleryData from '../data/gallery.json';
 
-const works = galleryData.works;
+interface Work {
+  id?: string;
+  image: string;
+  title?: string;
+  date?: string;
+  description?: string;
+  tags: string[];
+}
+
+// Surface a stable id for every work — prefer an explicit `id` field, fall
+// back to a slug derived from the image path so existing data files keep
+// working. Permalinks use this id, so changing one work's image filename
+// rotates only that link instead of shifting every numeric index.
+function workId(w: Work, fallback: number): string {
+  if (w.id) return w.id;
+  const base = w.image.split('/').pop() ?? `work-${fallback}`;
+  return base.replace(/\.[a-z0-9]+$/i, '').replace(/[^a-z0-9-_]+/gi, '-');
+}
+
+const works: Array<Work & { _id: string }> = (galleryData.works as Work[]).map(
+  (w, i) => ({ ...w, _id: workId(w, i) }),
+);
 
 // Collect unique tags from all works
 const allTags: string[] = [];
@@ -36,6 +57,12 @@ for (const w of works) {
 </div>
 
 <script is:inline define:vars={{ works }}>
+  // CSS columns handle the masonry layout (see style.css `.gallery` rule),
+  // so this script only owns filtering, the lightbox, and permalink wiring.
+  // Removing the JS column-balancer also fixes the bug where the initial
+  // column heights were estimated at +300 and never reflowed once images
+  // finished loading.
+
   var WORKS = works;
 
   var gallery = document.getElementById('gallery');
@@ -59,22 +86,16 @@ for (const w of works) {
     render();
   });
 
-  // === Responsive columns ===
-  function getCols() {
-    return window.innerWidth <= 900 ? 2 : 3;
-  }
-
-  // === Render masonry ===
+  // === Render — CSS columns do the layout ===
   function render() {
     filtered = activeTag === 'all'
       ? WORKS.slice()
       : WORKS.filter(function(w) { return (w.tags || []).indexOf(activeTag) !== -1; });
 
-    var cols = getCols();
     gallery.innerHTML = '';
 
     if (filtered.length === 0) {
-      gallery.style.display = 'block';
+      gallery.classList.add('is-empty');
       var empty = document.createElement('div');
       empty.className = 'empty';
       var emptyText = document.createElement('div');
@@ -85,24 +106,9 @@ for (const w of works) {
       return;
     }
 
-    gallery.style.display = 'flex';
-
-    var colEls = [];
-    var colH = [];
-    for (var c = 0; c < cols; c++) {
-      var col = document.createElement('div');
-      col.className = 'gallery-col';
-      gallery.appendChild(col);
-      colEls.push(col);
-      colH.push(0);
-    }
+    gallery.classList.remove('is-empty');
 
     filtered.forEach(function(w, i) {
-      var minIdx = 0;
-      for (var c = 1; c < cols; c++) {
-        if (colH[c] < colH[minIdx]) minIdx = c;
-      }
-
       var item = document.createElement('div');
       item.className = 'item';
       item.style.animationDelay = (i * 40) + 'ms';
@@ -114,15 +120,7 @@ for (const w of works) {
       item.addEventListener('click', (function(idx) {
         return function() { openLB(idx); };
       })(i));
-
-      colEls[minIdx].appendChild(item);
-      colH[minIdx] += 300;
-
-      img.addEventListener('load', (function(ci, el) {
-        return function() {
-          colH[ci] += this.naturalHeight / this.naturalWidth * el.offsetWidth - 300;
-        };
-      })(minIdx, item));
+      gallery.appendChild(item);
     });
   }
 
@@ -149,8 +147,10 @@ for (const w of works) {
       lbTagsEl.appendChild(span);
     });
     lightbox.scrollTop = 0;
-    var globalIdx = WORKS.indexOf(w);
-    history.replaceState(null, '', '#work-' + globalIdx);
+    // Permalink uses the work's stable id (slug from image filename or
+    // explicit `id` field). Adding/removing other works does not rotate
+    // existing links, unlike the previous numeric index.
+    if (w._id) history.replaceState(null, '', '#work-' + w._id);
   }
 
   function closeLB() {
@@ -181,21 +181,14 @@ for (const w of works) {
 
   render();
 
-  // Permalink support
+  // Permalink support — slug-based.
   (function() {
-    var m = location.hash.match(/^#work-(\d+)$/);
-    if (m) {
-      var idx = parseInt(m[1], 10);
-      if (idx >= 0 && idx < WORKS.length) {
-        var fIdx = filtered.indexOf(WORKS[idx]);
-        if (fIdx !== -1) openLB(fIdx);
-      }
-    }
+    var m = location.hash.match(/^#work-(.+)$/);
+    if (!m) return;
+    var slug = m[1];
+    // Match against the filtered list first (default: all works), so the
+    // first user-visible item with that id opens.
+    var idx = filtered.findIndex(function(w) { return w._id === slug; });
+    if (idx !== -1) openLB(idx);
   })();
-
-  var resizeTimer;
-  window.addEventListener('resize', function() {
-    clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(render, 200);
-  });
 </script>
