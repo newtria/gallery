@@ -3,6 +3,14 @@ import Base from '../layouts/Base.astro';
 import Header from '../components/Header.astro';
 import Profile from '../components/Profile.astro';
 import Gallery from '../components/Gallery.astro';
+import galleryData from '../data/gallery.json';
+
+// While the gallery has zero published works, redirect visitors to the
+// commission page so they don't land on an empty grid. Once `gallery.json`
+// has at least one entry, the gallery view becomes the default again.
+if (galleryData.works.length === 0) {
+  return Astro.redirect('/commission');
+}
 ---
 
 <Base>
